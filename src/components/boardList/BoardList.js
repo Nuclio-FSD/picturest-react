@@ -3,7 +3,7 @@ import "./BoardList.css";
 import BoardCard from "../boardCard/BoardCard";
 
 const createBoard = (boardData) => {
-  fetch("http://localhost:5001", {
+  fetch("https://curso-test.herokuapp.com", {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
     headers: {
@@ -16,7 +16,7 @@ const createBoard = (boardData) => {
 const BoardList = () => {
   const [boards, setBoards] = useState([]);
   useEffect(() => {
-    fetch("http://localhost:5001/api/boards")
+    fetch("https://curso-test.herokuapp.com/boards")
       .then((response) => response.json())
       .then((json) => setBoards(json));
   }, []);

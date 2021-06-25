@@ -9,7 +9,7 @@ const PinsList = () => {
   const [pinName, setPinName] = useState();
   
   useEffect(() => {
-    fetch("http://localhost:5001/api/pins")
+    fetch("https://curso-test.herokuapp.com/pins")
       .then((response) => response.json())
       .then((json) => setPins(json))
       .catch((err) => console.log(err));
@@ -20,7 +20,7 @@ const PinsList = () => {
   }
 
   const createPin = () => {
-    fetch("http://localhost:5001/api/pins", {
+    fetch("https://curso-test.herokuapp.com/pins", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
