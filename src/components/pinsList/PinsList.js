@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import "./PinsList.css";
 import PinCard from "../pinCard/PinCard";
+import "./PinsList.css";
+import UploadImageInput from "../uploadImageInput/UploadImageInput";
 
 const PinsList = () => {
-
   const [pins, setPins] = useState([]);
   const [refresh, setRefresh] = useState(1);
   const [pinName, setPinName] = useState();
-  
+
   useEffect(() => {
     fetch("http://localhost:5001/api/pins")
       .then((response) => response.json())
@@ -17,19 +17,20 @@ const PinsList = () => {
 
   const body = {
     name: pinName,
-  }
+  };
 
   const createPin = () => {
+    // TODO add handling of sending to Cloudinary
     fetch("http://localhost:5001/api/pins", {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     })
-    .then((response) => response.json())
-    .then((json) => setRefresh())
-    .catch((err) => console.log(err));
+      .then((response) => response.json())
+      .then((json) => setRefresh())
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -42,7 +43,8 @@ const PinsList = () => {
       </div>
       <form>
         <input onChange={(event) => setPinName(event.target.value)}></input>
-      <button onClick={() => createPin()}>Create</button>
+        <UploadImageInput maxPhotos={4} />
+        <button onClick={() => createPin()}>Create</button>
       </form>
     </div>
   );

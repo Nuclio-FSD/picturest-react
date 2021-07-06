@@ -1,0 +1,40 @@
+.boxGrid {
+    display: flex;
+    justify-content: center;
+}
+
+.photoBox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 120px;
+    border: 1px solid darkgray;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 120px;
+    border: 1px solid darkgray;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.addSymbol {
+    font-size: 50px;
+    color: orange;
+}
+
+.hidden {
+    /*display: none; TODO uncomment */
+}
+
+.img {
+    max-width: 100%;
+    max-height: 100%;
+}
