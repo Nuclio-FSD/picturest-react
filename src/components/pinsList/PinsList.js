@@ -47,7 +47,7 @@ const PinsList = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <UploadImageInput
           maxImages={4}
-          {...register("file", { required: true })}
+          {...register("images", { required: true })}
           updateInputValue={setValue}
         />
         <input className="pinsList__submit" type="submit" value="Upload" />

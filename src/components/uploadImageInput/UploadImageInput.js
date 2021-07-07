@@ -1,5 +1,6 @@
 import "./UploadImageInput.css";
 import { useRef, useState, useEffect } from "react";
+import { Spinner } from "@chakra-ui/spinner";
 
 const UploadImageInput = ({ maxImages = 1, name, updateInputValue }) => {
   // if the user sets an incorrect number, set maxImages to 1
@@ -35,26 +36,25 @@ const UploadImageInput = ({ maxImages = 1, name, updateInputValue }) => {
       const reader = new FileReader();
 
       reader.onload = (event) => {
-        const imageProcessed = {
+        const imageConverted = {
           id: event.timeStamp,
-          bas64: event.target.result,
-          upload_status: "pending",
+          base64: event.target.result,
         };
 
         // once transformed, we store the image to render it on the page + proceed to sending it to Cloudinary
-        setImagesConverted((current) => [...current, imageProcessed]);
-        uploadImage(imageProcessed);
+        setImagesConverted((current) => [...current, imageConverted]);
+        uploadImage(imageConverted);
       };
 
       reader.readAsDataURL(file);
     });
   };
 
-  const uploadImage = async (imageProcessed) => {
+  const uploadImage = async (imageConverted) => {
     const cloudinaryUrl = "https://api.cloudinary.com/v1_1/angelbt/auto/upload";
 
     const formData = new FormData();
-    formData.append("file", imageProcessed.bas64);
+    formData.append("file", imageConverted.base64);
     formData.append("upload_preset", "gqqtbphk");
     formData.append("folder", "cloudinary_example");
 
@@ -63,60 +63,77 @@ const UploadImageInput = ({ maxImages = 1, name, updateInputValue }) => {
     const response = await fetch(cloudinaryUrl, cloudinaryOptions);
 
     if (!response.ok) {
+      // when upload fails, we add the image to imagesUploaded with a "failed" status
       setImagesUploaded((current) => [
         ...current,
-        { ...imageProcessed, upload_status: "failed" },
+        { id: imageConverted.id, upload_status: "failed" },
       ]);
     }
 
     const json = await response.json();
+
     setImagesUploaded((current) => [
       ...current,
-      { ...imageProcessed, upload_status: "success", url: json.secure_url },
+      {
+        id: imageConverted.id,
+        upload_status: "success",
+        url: json.secure_url,
+      },
     ]);
   };
 
-  const removePhoto = (id) => {
-    // we remove the image from both state variables
-    setImagesConverted((current) => current.filter((file) => file.id !== id));
-    setImagesUploaded((current) => current.filter((file) => file.id !== id)); // TODO send DELETE to Cloudinary
+  const removePhoto = (imageConverted) => {
+    // if the image is still not uploaded (or failed uploading) we don't allow removing it
+    const convertedImageIsAlsoUploaded = imagesUploaded.find(
+      (imageUploaded) => imageUploaded.id === imageConverted.id
+    );
+    if (!convertedImageIsAlsoUploaded) return;
+
+    // else, we remove the image from both state variables
+    setImagesConverted((current) =>
+      current.filter((file) => file.id !== imageConverted.id)
+    );
+    setImagesUploaded((current) =>
+      current.filter((file) => file.id !== imageConverted.id)
+    ); // TODO send DELETE to Cloudinary
+  };
+
+  // returns a component showing the upload status of the image
+  const UploadStatus = ({ imageConverted }) => {
+    const convertedImageIsAlsoUploaded = imagesUploaded.find(
+      (imageUploaded) => imageUploaded.id === imageConverted.id
+    );
+
+    if (!convertedImageIsAlsoUploaded)
+      return <Spinner className="uploadProcess spinner" size="xl" />;
+    if (convertedImageIsAlsoUploaded.upload_status === "success")
+      return <span className="uploadProcess">✔</span>;
+    if (convertedImageIsAlsoUploaded.upload_status === "failed")
+      return <span className="uploadProcess">❌</span>;
   };
 
   return (
     <>
       <div className="boxGrid">
-        {/* TODO add trash icon and upload status */}
         {imagesConverted.length > 0 &&
           imagesConverted.map((imageConverted) => {
-            {
-              /* TODO fix layout */
-            }
             return (
-              <div className="unflex">
-                <div
-                  className="photoBox"
-                  onClick={() => removePhoto(imageConverted.id)}
-                >
-                  <img
-                    alt=""
-                    key={imageConverted.id}
-                    src={imageConverted.bas64}
-                    className="img"
-                  />
-                </div>
-                <div>
-                  <p>
-                    {imagesUploaded.find((img) => img.id === imageConverted.id)
-                      ? imagesUploaded.find(
-                          (img) => img.id === imageConverted.id
-                        ).upload_status
-                      : imageConverted.upload_status}
-                  </p>
-                </div>
+              <div
+                className="photoBox"
+                onClick={() => removePhoto(imageConverted)}
+              >
+                <img
+                  alt=""
+                  key={imageConverted.id}
+                  src={imageConverted.base64}
+                  className="img"
+                />
+                <UploadStatus imageConverted={imageConverted} />
               </div>
             );
           })}
 
+        {/* print as many add boxes as remaining slots for images */}
         {[...Array(maxImages - imagesConverted.length)].map(() => {
           return (
             <div className="box" onClick={openInput}>
@@ -125,6 +142,7 @@ const UploadImageInput = ({ maxImages = 1, name, updateInputValue }) => {
           );
         })}
       </div>
+
       <input
         type="file"
         className="hidden"

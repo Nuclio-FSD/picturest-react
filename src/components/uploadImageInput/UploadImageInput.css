@@ -7,6 +7,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
     width: 200px;
     height: 120px;
     border: 1px solid darkgray;
@@ -39,6 +40,14 @@
     max-height: 100%;
 }
 
-.unflex {
-    display: block;
+.uploadProcess {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+.spinner {
+    width: 15px;
+    height: 15px;
 }
